@@ -9,6 +9,7 @@ pesterchum.js
 quirks/*
 !quirks/defaults.py
 *.pkl
+*.db
 tools/ui_updater.py
 
 Pesterchum.dmg
