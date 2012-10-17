@@ -1,0 +1,915 @@
+<?xml version='1.0' encoding='ISO-8859-1' standalone='yes'?>
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN' 'http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' >
+<head>
+<title>Database documentation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF8"/>
+<style type='text/css'>
+	 #dbs {font-family:Tahoma,Dialog,Sans-Serif;font-size:12px;background:#fff;width:80%;border-collapse:collapse;text-align:left;margin:20px;}
+	 #dbs thead{background:#ddd;}
+	 #dbs th{font-size:12px;font-weight:bold;color:#333;border-bottom:2px solid #333;padding:7px 8px;}
+	 #dbs td{border-bottom:1px solid #ccc;color:#333;padding:5px 8px;white-space: pre;}
+	 td.subpart{background:#ddd}
+	 #dbs tbody tr:hover td{color:#000;background:#fffcea;}
+</style>
+</head>
+
+<body>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'   width='1134' height='778' viewbox='0 0 1134 778' >
+<style type='text/css'>
+  text                { text-rendering: optimizeLegibility; fill:#18191b; font-family: Candara, Dialog, Arial; font-size:12px; }
+  text.fk             { fill:#57103e; }
+  text.pk             { fill:#0c31a1; }
+  text.colType        { fill:#a9bdc6; }
+  text.tableTitle     { fill:#000000; }
+  path                { stroke:#817255; stroke-width:1.5; fill:none; }
+  rect.grp            { opacity:0.5; stroke:#c2ab83; stroke-width:1; }
+  rect.table          { fill:#ffffff; stroke:#9ea1a4; stroke-width:0.5; filter:url(#shadow); }
+  line.table          { stroke:#9ea1a4; stroke-width:0.3; }
+  rect.callout        { fill:url(#calloutGradient); stroke:#aea913; stroke-width:0.5; }
+  path.callout        { fill:#f4f1a4; stroke:#aea913; stroke-width:0.5; }
+</style>
+<defs>
+  <pattern id='layoutGradient' patternUnits='userSpaceOnUse' x='0' y='0' width='10' height='10' viewBox='0 0 10 10'>
+    <rect x='0' y='0' width='10' height='10' style='fill:#f7f7f0;' />
+    <line x1='5' y1='10' x2='5' y2='0' style='stroke:#949494;stroke-width:0.5;stroke-dasharray:1,9;'  />
+  </pattern>
+  <radialGradient id='layoutGradientOld' cx='20%' cy='20%' r='25%' fx='10%' fy='0%'>
+	   <stop offset='0%' stop-color='#ffffff' />
+    <stop offset='100%' stop-color='#efefef' />
+  </radialGradient>
+  <linearGradient id='tableHeaderGradient' x1='0%' y1='0%' x2='0%' y2='100%' >
+          <stop offset='0%' stop-color='#f6fafc' stop-opacity='1'/> 
+          <stop offset='50%' stop-color='#e1ebfa' stop-opacity='1'/> 
+          <stop offset='51%' stop-color='#bdd4f1' stop-opacity='1'/> 
+          <stop offset='100%' stop-color='#d6e2f9' stop-opacity='1' /> 
+   </linearGradient>
+  <radialGradient id='calloutGradient' cx='20%' cy='20%' r='100%' fx='10%' fy='10%'>
+	   <stop offset='0%' stop-color='#ffffff' />
+    <stop offset='100%' stop-color='#f4f1a4' />
+  </radialGradient>
+  <filter id='shadow' width='150%' height='150%'> 
+    <feGaussianBlur in='SourceAlpha' stdDeviation='2' result='image1' /> 
+    <feOffset in='image1' result='image2' dx='2' dy='2' />
+    <feComposite in='SourceGraphic' in2='image2' operator='over' /> 
+  </filter>
+  <filter id='emboss'> 
+    <feGaussianBlur in='SourceAlpha' stdDeviation='2' result='blur'/> 
+    <feSpecularLighting in='blur' surfaceScale='-3' style='lighting-color:white' 
+      specularConstant='1' specularExponent='16' result='spec' kernelUnitLength='1' >
+      <feDistantLight azimuth='45' elevation='45' />
+    </feSpecularLighting> 
+    <feComposite in='spec' in2='SourceGraphic' operator='in' result='specOut'/> 
+    <feComposite in='SourceGraphic' in2='specOut' operator='arithmetic' k1='0' k2='1' k3='1' k4='0' result='litPaint'/>  
+  </filter>
+  <filter id='embossAndShadow' filterUnits='userSpaceOnUse' x='0' y='0' width='400' height='120'> 
+     <feGaussianBlur in='SourceAlpha' stdDeviation='3' result='blur'/> 
+     <feOffset in='blur' dx='4' dy='4' result='offsetBlur'/> 
+     <feSpecularLighting in='blur' surfaceScale='5' specularConstant='.75' specularExponent='20' lighting-color='#bbbbbb' result='specOut'>
+        <fePointLight x='-5000' y='-10000' z='20000'/>  
+     </feSpecularLighting> 
+     <feComposite in='specOut' in2='SourceAlpha' operator='in' result='specOut'/> 
+     <feComposite in='SourceGraphic' in2='specOut' operator='arithmetic' k1='0' k2='1' k3='1' k4='0' result='litPaint'/>  
+     <feMerge> 
+         <feMergeNode in='offsetBlur'/> 
+         <feMergeNode in='litPaint'/> 
+     </feMerge> 
+  </filter> 
+  <radialGradient id='legendGradient' fx='5%' fy='5%' r='75%' spreadMethod='pad'>
+          <stop offset='0%' stop-color='#cfd7f6' stop-opacity='1'/> 
+          <stop offset='100%' stop-color='#919dd0' stop-opacity='1' /> 
+   </radialGradient>
+  <pattern id='hintPointerSV' patternUnits='userSpaceOnUse' x='0' y='0' width='14' height='14' viewBox='0 0 14 14' >
+      <path d='M 0,0 Q 7,7,0,13 Q 13,7,13,0' class='callout' />
+  </pattern>
+  <pattern id='hintPointerSE' patternUnits='userSpaceOnUse' x='0' y='0' width='14' height='14' viewBox='0 0 14 14' >
+      <path d='M 0,0 Q 3,7,13,13 Q 7,7,13,0' class='callout' />
+  </pattern>
+  <pattern id='hintPointerNV' patternUnits='userSpaceOnUse' x='0' y='0' width='14' height='14' viewBox='0 0 14 14' >
+      <path d='M 0,13 Q 7,7,0,0 Q 13,7,13,13' class='callout' />
+  </pattern>
+  <pattern id='hintPointerNE' patternUnits='userSpaceOnUse' x='0' y='0' width='14' height='14' viewBox='0 0 14 14' >
+      <path d='M 0,13 Q 3,7,13,0 Q 7,7,13,13' class='callout' />
+  </pattern>
+  <symbol id='pk' overflow='visible' >
+    <g transform='scale(0.85)'>
+     <path style='fill:#e9ad16;stroke:#9c4f15;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:round;filter:url(#emboss);'
+        d='M 9.3678877,3.5695485 C 9.1030218,3.2729386 9.0796382,2.7628519 9.3396185,2.4517097 9.5449651,2.1956495 9.9040386,2.0980533 10.199638,2.2169415 10.533525,2.3415459 10.775153,2.706942 10.750675,3.0842709 10.737029,3.3980003 10.541153,3.699122 10.258248,3.8066067 9.966649,3.9250429 9.6169668,3.8418805 9.4008073,3.6062324 9.3894892,3.5943518 9.3785264,3.582104 9.3678886,3.5695487 z M 11.226617,6.9916004 C 11.888137,6.3548946 12.293488,5.4172188 12.311087,4.442353 12.378144,2.7379364 11.248678,1.0541269 9.7322318,0.44767357 8.3887112,-0.1280313 6.7865012,0.26822889 5.8918395,1.4007929 5.080823,2.3839145 4.9336815,3.8452096 5.3635544,5.101615 L 4.3670905,5.315913 C 4.0664984,5.3682645 4.0967703,5.6316724 4.2574957,5.8208829 L 4.9124,6.5655244 4.1543436,7.2512357 3.2136002,7.2163506 3.1674775,8.5586827 2.0406832,8.5086512 1.5965306,8.9299953 1.5471661,10.179833 0.75616674,10.195223 0.2112857,10.758575 0.15354288,11.735988 0.07199052,12.765553 c 0.36440953,0.238225 0.79006967,0.195492 1.44938278,-0.02675 L 6.3033562,8.1282037 6.8217102,8.6765688 C 6.9985465,8.8799427 7.3003699,8.7497574 7.358381,8.5016252 L 7.4938877,7.5084164 c 0.8537488,0.3985387 1.8303125,0.4711541 2.6851793,0.1427713 0.393927,-0.1407258 0.746858,-0.3701772 1.04755,-0.6595873 z'/>
+     <path d='M 6.8014948,6.3102123 0.15369063,13.024481 0.21560535,12.141962 6.0062342,6.2683782 z'
+        style='fill:#ffe5a5;fill-opacity:1;stroke:#854e31;stroke-width:0.09912433;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:3.00300009'/>
+    </g>
+  </symbol>
+  <symbol id='unq' overflow='visible' >
+    <g transform='scale(0.85)'>
+      <rect style='fill:#e07554;stroke:#7e4d31;stroke-width:0.71934468;stroke-linecap:round;stroke-linejoin:round;'
+         width='2.29' height='8.43' x='7.48' y='-0.76' ry='1.14' transform='matrix(0.701,0.713,-0.727,0.685,0,0)' />
+      <path style='fill:#ffffe2;stroke:#313131;stroke-width:0.8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;'
+         d='m 26.04,8.64 a 4.13,4.13 0 1 1 -8.26,0 4.13,4.13 0 1 1 8.26,0 z'
+         transform='matrix(1.025,0,0,0.987,-14.690,-3.862)' />
+      <text x='5.4' y='6.6' style='font-size:8px;fill:#7c0909;'>1</text>
+    </g>
+  </symbol>
+  <symbol id='idx' overflow='visible' >
+    <g transform='scale(0.85)'>
+      <rect style='fill:#e07554;stroke:#7e4d31;stroke-width:0.71934468;stroke-linecap:round;stroke-linejoin:round;'
+         width='2.29' height='8.43' x='7.48' y='-0.76' ry='1.14' transform='matrix(0.701,0.713,-0.727,0.685,0,0)' />
+      <path style='fill:#ffffe2;stroke:#313131;stroke-width:0.8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;'
+         d='m 26.04,8.64 a 4.13,4.13 0 1 1 -8.26,0 4.13,4.13 0 1 1 8.26,0 z'
+         transform='matrix(1.025,0,0,0.987,-14.690,-3.862)' />
+    </g>
+  </symbol>
+  <symbol id='fk' overflow='visible' >
+    <path style='fill:#946d00;stroke:#5c2352;stroke-width:0.46;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;'
+    d='M 12.48,0.33 7.07,0.89 9.067,2.974 0.329,11.731 1.073,12.597 9.811,3.841 11.77,5.78 z' />
+  </symbol>
+  <symbol id='ref' overflow='visible' >
+  <path style='fill:#1877c8;stroke:#29365f;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;'
+          d='M 0.10,12.70 5.31,12.15 3.40,10.06 11.82,1.32 11.11,0.45 2.68,9.19 0.80,7.24 z'/>
+  </symbol>
+  <marker id='arrow' viewBox='0 0 7 7' refX='0' refY='3' markerUnits='strokeWidth' markerWidth='7' markerHeight='7' orient='auto'>
+    <path d='M 0,0 L 7, 3 L 0,7 z' style='fill:#776c57; stroke-width:0px;' />
+  </marker>
+  <marker id='foot' viewBox='0 0 7 7' refX='7' refY='3' markerUnits='strokeWidth' markerWidth='7' markerHeight='7' orient='auto'>
+    <path d='M 0,3 L 14, 3 z' style='stroke:#776c57;' />
+  </marker>
+</defs>
+
+<!-- ============= Desktop ============= -->
+<rect x='1' y='1' width='1132' height='776' rx='7' ry='7' style='fill:url(#layoutGradient); stroke:#104576; stroke-width:0.5;' />
+
+<!-- ============= Legend ============= -->
+<g transform='translate(10,10)'>
+  <rect x='10' y='10' width='320' height='80' rx='6' ry='6' style='fill:url(#legendGradient);filter:url(#embossAndShadow);'/> 
+  <text x='20' y='30'><tspan style='fill:gray;'>Project</tspan> Pesterchum DB</text> 
+  <text x='20' y='44'><tspan style='fill:gray;'>Layout</tspan> Default</text> 
+  <text x='20' y='58'><tspan style='fill:gray;'>Build with DbSchema</tspan></text> 
+  <text x='20' y='76'><tspan style='fill:gray;'>Tip: column and table comments are available as tooltips</tspan></text> 
+  <a xlink:href='http://www.dbschema.com' title='Visit http://www.dbschema.com'> 
+  </a>
+
+</g>
+
+<g transform='translate(0,120)'>
+<!-- ============= Group 'Profiles' ============= -->
+<rect class='grp' style='fill:#ffffcc;' x='282' y='50' width='332' height='348' rx='7' ry='7'/>
+<text x='292' y='60'>Profiles</text>
+
+<!-- ============= Group 'Chums' ============= -->
+<rect class='grp' style='fill:#fff8d6;' x='814' y='106' width='290' height='278' rx='7' ry='7'/>
+<text x='824' y='116'>Chums</text>
+
+<path transform='translate(7,0)' marker-start='url(#foot)' marker-end='url(#arrow)'  style='stroke-dasharray:4,2;'  title='Fk_Config Config to Profiles ( DefaultProfile -> Id )' d='M 182 182 L 280,182'  />
+
+<text x='191' y='178' transform='rotate(0 191,178)' title='Fk_Config Config to Profiles ( DefaultProfile -> Id )'>DefaultProfile</text><path transform='translate(7,0)' marker-start='url(#foot)' marker-end='url(#arrow)'  style='stroke-dasharray:4,2;'  title='Fk_Blocked Blocked to People ( Person -> Id )' d='M 924 154 L 994,154'  />
+
+<text x='933' y='150' transform='rotate(0 933,150)' title='Fk_Blocked Blocked to People ( Person -> Id )'>Person</text><path transform='translate(7,0)' marker-start='url(#foot)' marker-end='url(#arrow)'  style='stroke-dasharray:4,2;'  title='Fk_QuirkProfiles QuirkProfiles to Profiles ( Profile -> Id )' d='M 476 280 L 406,280'  />
+
+<text x='445' y='276' transform='rotate(0 445,276)' title='Fk_QuirkProfiles QuirkProfiles to Profiles ( Profile -> Id )'>Profile</text><path transform='translate(7,0)' marker-start='url(#foot)' marker-end='url(#arrow)'  style='stroke-dasharray:4,2;'  title='Fk_QuirkProfiles_001 QuirkProfiles to Quirks ( Quirk -> Id )' d='M 588 294 L 658,294'  />
+
+<text x='597' y='290' transform='rotate(0 597,290)' title='Fk_QuirkProfiles_001 QuirkProfiles to Quirks ( Quirk -> Id )'>Quirk</text><path transform='translate(7,0)' marker-start='url(#foot)' marker-end='url(#arrow)'  style='stroke-dasharray:4,2;'  title='Fk_MentionProfiles MentionProfiles to Profiles ( Profile -> Id )' d='M 490 126 L 399,126 Q 392,126 392,133 L 392,168'  />
+
+<text x='459' y='122' transform='rotate(0 459,122)' title='Fk_MentionProfiles MentionProfiles to Profiles ( Profile -> Id )'>Profile</text><path transform='translate(7,0)' marker-start='url(#foot)' marker-end='url(#arrow)'  style='stroke-dasharray:4,2;'  title='Fk_MentionProfiles_001 MentionProfiles to Mentions ( Mention -> Id )' d='M 602 98 L 658,98'  />
+
+<text x='611' y='94' transform='rotate(0 611,94)' title='Fk_MentionProfiles_001 MentionProfiles to Mentions ( Mention -> Id )'>Mention</text><path transform='translate(7,0)' marker-start='url(#foot)' marker-end='url(#arrow)'  style='stroke-dasharray:4,2;'  title='Fk_Chums Chums to Groups ( Group -> Id )' d='M 980 280 L 924,280'  />
+
+<text x='952' y='276' transform='rotate(0 952,276)' title='Fk_Chums Chums to Groups ( Group -> Id )'>Group</text><path transform='translate(7,0)' marker-start='url(#foot)' marker-end='url(#arrow)'  style='stroke-dasharray:4,2;'  title='Fk_Chums_001 Chums to People ( Person -> Id )' d='M 1022 266 L 1022,224'  />
+
+<text x='1025' y='262' transform='rotate(270 1025,262)' title='Fk_Chums_001 Chums to People ( Person -> Id )'>Person</text><!-- ============= Table 'Profiles' ============= -->
+<rect class='table' x='294' y='175' width='112' height='140' rx='7' ry='7' />
+<path d='M 294.50 196.00 L 294.50 182.50 Q 294.50 175.50 301.50 175.50 L 398.50 175.50 Q 405.50 175.50 405.50 182.50 L 405.50 196.00 L294.50 196.00 ' style='fill:url(#tableHeaderGradient); stroke:none;' />
+<line class='table' x1='294' y1='196' x2='406' y2='196'/>
+<a xlink:href='#Profiles' title='Default.Profiles' ><text x='330' y='189' class='tableTitle'>Profiles</text></a>
+  <a xlink:href='#Id' title='Unique Index  ( Id ) '><use id='unq' x='296' y='208' xlink:href='#unq'/></a>
+<a xlink:href='#Id' title='INTEGER&#040; 2000000000&#044; 10 &#041; '><text x='311' y='217' >Id</text></a>
+<a xlink:href='#Id' title='Referred by Config ( DefaultProfile -> Id ) Referred by QuirkProfiles ( Profile -> Id ) Referred by MentionProfiles ( Profile -> Id ) '><use id='ref' x='392' y='206' xlink:href='#ref'/></a>
+  <a xlink:href='#Name' title='Unique Index  ( Name ) '><use id='unq' x='296' y='222' xlink:href='#unq'/></a>
+<a xlink:href='#Name' title='TEXT '><text x='311' y='231' >Name</text></a>
+  <a xlink:href='#Color' title='TEXT '><text x='311' y='245' >Color</text></a>
+  <a xlink:href='#LastMood' title='INT '><text x='311' y='259' >LastMood</text></a>
+  <a xlink:href='#LastUCheck' title='INT '><text x='311' y='273' >LastUCheck</text></a>
+  <a xlink:href='#Theme' title='TEXT '><text x='311' y='287' >Theme</text></a>
+  <a xlink:href='#Randoms' title='BOOL '><text x='311' y='301' >Randoms</text></a>
+
+<!-- ============= Table 'Config' ============= -->
+<rect class='table' x='42' y='35' width='140' height='574' rx='7' ry='7' />
+<path d='M 42.50 56.00 L 42.50 42.50 Q 42.50 35.50 49.50 35.50 L 174.50 35.50 Q 181.50 35.50 181.50 42.50 L 181.50 56.00 L42.50 56.00 ' style='fill:url(#tableHeaderGradient); stroke:none;' />
+<line class='table' x1='42' y1='56' x2='182' y2='56'/>
+<a xlink:href='#Config' title='Default.Config' ><text x='95' y='49' class='tableTitle'>Config</text></a>
+  <a xlink:href='#Id' title='Unique Index  ( Id ) '><use id='unq' x='44' y='68' xlink:href='#unq'/></a>
+<a xlink:href='#Id' title='INTEGER&#040; 2000000000&#044; 10 &#041; '><text x='59' y='77' >Id</text></a>
+  <a xlink:href='#DefaultProfile' title='INT '><text x='59' y='91' class='fk'>DefaultProfile</text></a>
+<a xlink:href='#DefaultProfile' title='References Profiles ( DefaultProfile -> Id ) '><use id='fk' x='168' y='80' xlink:href='#fk'/></a>
+  <a xlink:href='#HideOfflineChums' title='BOOL '><text x='59' y='105' >HideOfflineChums</text></a>
+  <a xlink:href='#Tabs' title='BOOL '><text x='59' y='119' >Tabs</text></a>
+  <a xlink:href='#TabMemos' title='BOOL '><text x='59' y='133' >TabMemos</text></a>
+  <a xlink:href='#ShowTimeStamps' title='BOOL '><text x='59' y='147' >ShowTimeStamps</text></a>
+  <a xlink:href='#Time12Format' title='BOOL '><text x='59' y='161' >Time12Format</text></a>
+  <a xlink:href='#ShowSeconds' title='BOOL '><text x='59' y='175' >ShowSeconds</text></a>
+  <a xlink:href='#UseGroups' title='BOOL '><text x='59' y='189' >UseGroups</text></a>
+  <a xlink:href='#SortMethod' title='INT '><text x='59' y='203' >SortMethod</text></a>
+  <a xlink:href='#EmptyGroups' title='BOOL '><text x='59' y='217' >EmptyGroups</text></a>
+  <a xlink:href='#OnlineNumbers' title='BOOL '><text x='59' y='231' >OnlineNumbers</text></a>
+  <a xlink:href='#LogPesters' title='INT '><text x='59' y='245' >LogPesters</text></a>
+  <a xlink:href='#LogMemos' title='INT '><text x='59' y='259' >LogMemos</text></a>
+  <a xlink:href='#UserLinks' title='BOOL '><text x='59' y='273' >UserLinks</text></a>
+  <a xlink:href='#IdleTime' title='INT '><text x='59' y='287' >IdleTime</text></a>
+  <a xlink:href='#MiniAction' title='INT '><text x='59' y='301' >MiniAction</text></a>
+  <a xlink:href='#CloseAction' title='INT '><text x='59' y='315' >CloseAction</text></a>
+  <a xlink:href='#OpVMessages' title='BOOL '><text x='59' y='329' >OpVMessages</text></a>
+  <a xlink:href='#Animations' title='BOOL '><text x='59' y='343' >Animations</text></a>
+  <a xlink:href='#CheckUpdates' title='INT '><text x='59' y='357' >CheckUpdates</text></a>
+  <a xlink:href='#LastUCheck' title='INT '><text x='59' y='371' >LastUCheck</text></a>
+  <a xlink:href='#Mspa' title='BOOL '><text x='59' y='385' >Mspa</text></a>
+  <a xlink:href='#Blink' title='INT '><text x='59' y='399' >Blink</text></a>
+  <a xlink:href='#Notify' title='BOOL '><text x='59' y='413' >Notify</text></a>
+  <a xlink:href='#NotifyType' title='TEXT '><text x='59' y='427' >NotifyType</text></a>
+  <a xlink:href='#NotifyOptions' title='INT '><text x='59' y='441' >NotifyOptions</text></a>
+  <a xlink:href='#LowBandwidth' title='BOOL '><text x='59' y='455' >LowBandwidth</text></a>
+  <a xlink:href='#Ghostchum' title='BOOL '><text x='59' y='469' >Ghostchum</text></a>
+  <a xlink:href='#Server' title='TEXT '><text x='59' y='483' >Server</text></a>
+  <a xlink:href='#Port' title='INT '><text x='59' y='497' >Port</text></a>
+  <a xlink:href='#SoundOn' title='BOOL '><text x='59' y='511' >SoundOn</text></a>
+  <a xlink:href='#ChatSound' title='BOOL '><text x='59' y='525' >ChatSound</text></a>
+  <a xlink:href='#MemoSound' title='BOOL '><text x='59' y='539' >MemoSound</text></a>
+  <a xlink:href='#PingSound' title='BOOL '><text x='59' y='553' >PingSound</text></a>
+  <a xlink:href='#NameSound' title='BOOL '><text x='59' y='567' >NameSound</text></a>
+  <a xlink:href='#Volume' title='INT '><text x='59' y='581' >Volume</text></a>
+  <a xlink:href='#TrayMsg' title='BOOL '><text x='59' y='595' >TrayMsg</text></a>
+
+<!-- ============= Table 'Groups' ============= -->
+<rect class='table' x='826' y='259' width='98' height='98' rx='7' ry='7' />
+<path d='M 826.50 280.00 L 826.50 266.50 Q 826.50 259.50 833.50 259.50 L 916.50 259.50 Q 923.50 259.50 923.50 266.50 L 923.50 280.00 L826.50 280.00 ' style='fill:url(#tableHeaderGradient); stroke:none;' />
+<line class='table' x1='826' y1='280' x2='924' y2='280'/>
+<a xlink:href='#Groups' title='Default.Groups' ><text x='857' y='273' class='tableTitle'>Groups</text></a>
+  <a xlink:href='#Id' title='Unique Index  ( Id ) '><use id='unq' x='828' y='292' xlink:href='#unq'/></a>
+<a xlink:href='#Id' title='INTEGER&#040; 2000000000&#044; 10 &#041; '><text x='843' y='301' >Id</text></a>
+<a xlink:href='#Id' title='Referred by Chums ( Group -> Id ) '><use id='ref' x='910' y='290' xlink:href='#ref'/></a>
+  <a xlink:href='#Name' title='Unique Index  ( Name ) '><use id='unq' x='828' y='306' xlink:href='#unq'/></a>
+<a xlink:href='#Name' title='TEXT '><text x='843' y='315' >Name</text></a>
+  <a xlink:href='#Open' title='BOOL '><text x='843' y='329' >Open</text></a>
+  <a xlink:href='#Ordering' title='Unique Index  ( Ordering ) '><use id='unq' x='828' y='334' xlink:href='#unq'/></a>
+<a xlink:href='#Ordering' title='INT '><text x='843' y='343' >Ordering</text></a>
+
+<!-- ============= Table 'People' ============= -->
+<rect class='table' x='1008' y='119' width='84' height='98' rx='7' ry='7' />
+<path d='M 1008.50 140.00 L 1008.50 126.50 Q 1008.50 119.50 1015.50 119.50 L 1084.50 119.50 Q 1091.50 119.50 1091.50 126.50 L 1091.50 140.00 L1008.50 140.00 ' style='fill:url(#tableHeaderGradient); stroke:none;' />
+<line class='table' x1='1008' y1='140' x2='1092' y2='140'/>
+<a xlink:href='#People' title='Default.People' ><text x='1032' y='133' class='tableTitle'>People</text></a>
+  <a xlink:href='#Id' title='Unique Index  ( Id ) '><use id='unq' x='1010' y='152' xlink:href='#unq'/></a>
+<a xlink:href='#Id' title='INTEGER&#040; 2000000000&#044; 10 &#041; '><text x='1025' y='161' >Id</text></a>
+<a xlink:href='#Id' title='Referred by Blocked ( Person -> Id ) Referred by Chums ( Person -> Id ) '><use id='ref' x='1078' y='150' xlink:href='#ref'/></a>
+  <a xlink:href='#Name' title='Unique Index  ( Name ) '><use id='unq' x='1010' y='166' xlink:href='#unq'/></a>
+<a xlink:href='#Name' title='TEXT '><text x='1025' y='175' >Name</text></a>
+  <a xlink:href='#Color' title='TEXT '><text x='1025' y='189' >Color</text></a>
+  <a xlink:href='#Mood' title='INT '><text x='1025' y='203' >Mood</text></a>
+
+<!-- ============= Table 'Blocked' ============= -->
+<rect class='table' x='840' y='133' width='84' height='70' rx='7' ry='7' />
+<path d='M 840.50 154.00 L 840.50 140.50 Q 840.50 133.50 847.50 133.50 L 916.50 133.50 Q 923.50 133.50 923.50 140.50 L 923.50 154.00 L840.50 154.00 ' style='fill:url(#tableHeaderGradient); stroke:none;' />
+<line class='table' x1='840' y1='154' x2='924' y2='154'/>
+<a xlink:href='#Blocked' title='Default.Blocked' ><text x='861' y='147' class='tableTitle'>Blocked</text></a>
+  <a xlink:href='#Id' title='Unique Index  ( Id ) '><use id='unq' x='842' y='166' xlink:href='#unq'/></a>
+<a xlink:href='#Id' title='INTEGER&#040; 2000000000&#044; 10 &#041; '><text x='857' y='175' >Id</text></a>
+  <a xlink:href='#Person' title='Unique Index  ( Person ) '><use id='unq' x='842' y='180' xlink:href='#unq'/></a>
+<a xlink:href='#Person' title='INT '><text x='857' y='189' class='fk'>Person</text></a>
+<a xlink:href='#Person' title='References People ( Person -> Id ) '><use id='fk' x='910' y='178' xlink:href='#fk'/></a>
+
+<!-- ============= Table 'Quirks' ============= -->
+<rect class='table' x='672' y='273' width='84' height='126' rx='7' ry='7' />
+<path d='M 672.50 294.00 L 672.50 280.50 Q 672.50 273.50 679.50 273.50 L 748.50 273.50 Q 755.50 273.50 755.50 280.50 L 755.50 294.00 L672.50 294.00 ' style='fill:url(#tableHeaderGradient); stroke:none;' />
+<line class='table' x1='672' y1='294' x2='756' y2='294'/>
+<a xlink:href='#Quirks' title='Default.Quirks' ><text x='698' y='287' class='tableTitle'>Quirks</text></a>
+  <a xlink:href='#Id' title='Unique Index  ( Id ) '><use id='unq' x='674' y='306' xlink:href='#unq'/></a>
+<a xlink:href='#Id' title='INTEGER&#040; 2000000000&#044; 10 &#041; '><text x='689' y='315' >Id</text></a>
+<a xlink:href='#Id' title='Referred by QuirkProfiles ( Quirk -> Id ) '><use id='ref' x='742' y='304' xlink:href='#ref'/></a>
+  <a xlink:href='#Group' title='TEXT '><text x='689' y='329' >Group</text></a>
+  <a xlink:href='#Type' title='TEXT '><text x='689' y='343' >Type</text></a>
+  <a xlink:href='#From' title='TEXT '><text x='689' y='357' >From</text></a>
+  <a xlink:href='#To' title='TEXT '><text x='689' y='371' >To</text></a>
+  <a xlink:href='#Value' title='TEXT '><text x='689' y='385' >Value</text></a>
+
+<!-- ============= Table 'QuirkProfiles' ============= -->
+<rect class='table' x='490' y='273' width='98' height='98' rx='7' ry='7' />
+<path d='M 490.50 294.00 L 490.50 280.50 Q 490.50 273.50 497.50 273.50 L 580.50 273.50 Q 587.50 273.50 587.50 280.50 L 587.50 294.00 L490.50 294.00 ' style='fill:url(#tableHeaderGradient); stroke:none;' />
+<line class='table' x1='490' y1='294' x2='588' y2='294'/>
+<a xlink:href='#QuirkProfiles' title='Default.QuirkProfiles' ><text x='506' y='287' class='tableTitle'>QuirkProfiles</text></a>
+  <a xlink:href='#Id' title='Unique Index  ( Id ) '><use id='unq' x='492' y='306' xlink:href='#unq'/></a>
+<a xlink:href='#Id' title='INTEGER&#040; 2000000000&#044; 10 &#041; '><text x='507' y='315' >Id</text></a>
+  <a xlink:href='#Quirk' title='INT '><text x='507' y='329' class='fk'>Quirk</text></a>
+<a xlink:href='#Quirk' title='References Quirks ( Quirk -> Id ) '><use id='fk' x='574' y='318' xlink:href='#fk'/></a>
+  <a xlink:href='#Profile' title='INT '><text x='507' y='343' class='fk'>Profile</text></a>
+<a xlink:href='#Profile' title='References Profiles ( Profile -> Id ) '><use id='fk' x='574' y='332' xlink:href='#fk'/></a>
+  <a xlink:href='#Ordering' title='INT '><text x='507' y='357' >Ordering</text></a>
+
+<!-- ============= Table 'MentionProfiles' ============= -->
+<rect class='table' x='504' y='63' width='98' height='84' rx='7' ry='7' />
+<path d='M 504.50 84.00 L 504.50 70.50 Q 504.50 63.50 511.50 63.50 L 594.50 63.50 Q 601.50 63.50 601.50 70.50 L 601.50 84.00 L504.50 84.00 ' style='fill:url(#tableHeaderGradient); stroke:none;' />
+<line class='table' x1='504' y1='84' x2='602' y2='84'/>
+<a xlink:href='#MentionProfiles' title='Default.MentionProfiles' ><text x='511' y='77' class='tableTitle'>MentionProfiles</text></a>
+  <a xlink:href='#Id' title='Unique Index  ( Id ) '><use id='unq' x='506' y='96' xlink:href='#unq'/></a>
+<a xlink:href='#Id' title='INTEGER&#040; 2000000000&#044; 10 &#041; '><text x='521' y='105' >Id</text></a>
+  <a xlink:href='#Mention' title='INT '><text x='521' y='119' class='fk'>Mention</text></a>
+<a xlink:href='#Mention' title='References Mentions ( Mention -> Id ) '><use id='fk' x='588' y='108' xlink:href='#fk'/></a>
+  <a xlink:href='#Profile' title='INT '><text x='521' y='133' class='fk'>Profile</text></a>
+<a xlink:href='#Profile' title='References Profiles ( Profile -> Id ) '><use id='fk' x='588' y='122' xlink:href='#fk'/></a>
+
+<!-- ============= Table 'Mentions' ============= -->
+<rect class='table' x='672' y='91' width='70' height='70' rx='7' ry='7' />
+<path d='M 672.50 112.00 L 672.50 98.50 Q 672.50 91.50 679.50 91.50 L 734.50 91.50 Q 741.50 91.50 741.50 98.50 L 741.50 112.00 L672.50 112.00 ' style='fill:url(#tableHeaderGradient); stroke:none;' />
+<line class='table' x1='672' y1='112' x2='742' y2='112'/>
+<a xlink:href='#Mentions' title='Default.Mentions' ><text x='682' y='105' class='tableTitle'>Mentions</text></a>
+  <a xlink:href='#Id' title='Unique Index  ( Id ) '><use id='unq' x='674' y='124' xlink:href='#unq'/></a>
+<a xlink:href='#Id' title='INTEGER&#040; 2000000000&#044; 10 &#041; '><text x='689' y='133' >Id</text></a>
+<a xlink:href='#Id' title='Referred by MentionProfiles ( Mention -> Id ) '><use id='ref' x='728' y='122' xlink:href='#ref'/></a>
+  <a xlink:href='#Value' title='TEXT '><text x='689' y='147' >Value</text></a>
+
+<!-- ============= Table 'Chums' ============= -->
+<rect class='table' x='994' y='273' width='84' height='84' rx='7' ry='7' />
+<path d='M 994.50 294.00 L 994.50 280.50 Q 994.50 273.50 1001.50 273.50 L 1070.50 273.50 Q 1077.50 273.50 1077.50 280.50 L 1077.50 294.00 L994.50 294.00 ' style='fill:url(#tableHeaderGradient); stroke:none;' />
+<line class='table' x1='994' y1='294' x2='1078' y2='294'/>
+<a xlink:href='#Chums' title='Default.Chums' ><text x='1018' y='287' class='tableTitle'>Chums</text></a>
+  <a xlink:href='#Id' title='Unique Index  ( Id ) '><use id='unq' x='996' y='306' xlink:href='#unq'/></a>
+<a xlink:href='#Id' title='INTEGER&#040; 2000000000&#044; 10 &#041; '><text x='1011' y='315' >Id</text></a>
+  <a xlink:href='#Person' title='Unique Index  ( Person ) '><use id='unq' x='996' y='320' xlink:href='#unq'/></a>
+<a xlink:href='#Person' title='INT '><text x='1011' y='329' class='fk'>Person</text></a>
+<a xlink:href='#Person' title='References People ( Person -> Id ) '><use id='fk' x='1064' y='318' xlink:href='#fk'/></a>
+  <a xlink:href='#Group' title='INT '><text x='1011' y='343' class='fk'>Group</text></a>
+<a xlink:href='#Group' title='References Groups ( Group -> Id ) '><use id='fk' x='1064' y='332' xlink:href='#fk'/></a>
+
+</g></svg>
+
+<br/><br/>
+<table id='dbs' >
+<thead>
+<tr><th colspan='3'><a name='Blocked'>Blocked</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td><a name='Id'>Id</a></td>
+		<td width='40%'> INTEGER&#040; 2000000000&#044; 10 &#041;   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Person'>Person</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Indexes</b></td></tr>
+	<tr>		<td>pk&#095;Blocked unique</td>
+		<td> ON Id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>sqlite&#095;autoindex&#095;Blocked&#095;1 unique</td>
+		<td> ON Person</td>
+		<td>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Foreign Keys</b></td></tr>
+	<tr>
+		<td>Fk_Blocked</td>
+		<td > ( Person ) ref <a href='#People'>People</a> (Id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table id='dbs' >
+<thead>
+<tr><th colspan='3'><a name='Chums'>Chums</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td><a name='Id'>Id</a></td>
+		<td width='40%'> INTEGER&#040; 2000000000&#044; 10 &#041;   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Person'>Person</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Group'>Group</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Indexes</b></td></tr>
+	<tr>		<td>pk&#095;Chums unique</td>
+		<td> ON Id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>sqlite&#095;autoindex&#095;Chums&#095;1 unique</td>
+		<td> ON Person</td>
+		<td>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Foreign Keys</b></td></tr>
+	<tr>
+		<td>Fk_Chums</td>
+		<td > ( Group ) ref <a href='#Groups'>Groups</a> (Id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>Fk_Chums_001</td>
+		<td > ( Person ) ref <a href='#People'>People</a> (Id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table id='dbs' >
+<thead>
+<tr><th colspan='3'><a name='Config'>Config</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td><a name='Id'>Id</a></td>
+		<td width='40%'> INTEGER&#040; 2000000000&#044; 10 &#041;   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='DefaultProfile'>DefaultProfile</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='HideOfflineChums'>HideOfflineChums</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Tabs'>Tabs</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='TabMemos'>TabMemos</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='ShowTimeStamps'>ShowTimeStamps</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Time12Format'>Time12Format</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='ShowSeconds'>ShowSeconds</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='UseGroups'>UseGroups</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='SortMethod'>SortMethod</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='EmptyGroups'>EmptyGroups</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='OnlineNumbers'>OnlineNumbers</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='LogPesters'>LogPesters</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='LogMemos'>LogMemos</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='UserLinks'>UserLinks</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='IdleTime'>IdleTime</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='MiniAction'>MiniAction</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='CloseAction'>CloseAction</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='OpVMessages'>OpVMessages</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Animations'>Animations</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='CheckUpdates'>CheckUpdates</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='LastUCheck'>LastUCheck</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Mspa'>Mspa</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Blink'>Blink</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Notify'>Notify</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='NotifyType'>NotifyType</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='NotifyOptions'>NotifyOptions</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='LowBandwidth'>LowBandwidth</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Ghostchum'>Ghostchum</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Server'>Server</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Port'>Port</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='SoundOn'>SoundOn</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='ChatSound'>ChatSound</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='MemoSound'>MemoSound</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='PingSound'>PingSound</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='NameSound'>NameSound</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Volume'>Volume</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='TrayMsg'>TrayMsg</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Indexes</b></td></tr>
+	<tr>		<td>pk&#095;Config unique</td>
+		<td> ON Id</td>
+		<td>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Foreign Keys</b></td></tr>
+	<tr>
+		<td>Fk_Config</td>
+		<td > ( DefaultProfile ) ref <a href='#Profiles'>Profiles</a> (Id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table id='dbs' >
+<thead>
+<tr><th colspan='3'><a name='Groups'>Groups</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td><a name='Id'>Id</a></td>
+		<td width='40%'> INTEGER&#040; 2000000000&#044; 10 &#041;   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Name'>Name</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Open'>Open</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Ordering'>Ordering</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Indexes</b></td></tr>
+	<tr>		<td>pk&#095;Groups unique</td>
+		<td> ON Id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>sqlite&#095;autoindex&#095;Groups&#095;2 unique</td>
+		<td> ON Ordering</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>sqlite&#095;autoindex&#095;Groups&#095;1 unique</td>
+		<td> ON Name</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table id='dbs' >
+<thead>
+<tr><th colspan='3'><a name='MentionProfiles'>MentionProfiles</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td><a name='Id'>Id</a></td>
+		<td width='40%'> INTEGER&#040; 2000000000&#044; 10 &#041;   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Mention'>Mention</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Profile'>Profile</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Indexes</b></td></tr>
+	<tr>		<td>pk&#095;MentionProfiles unique</td>
+		<td> ON Id</td>
+		<td>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Foreign Keys</b></td></tr>
+	<tr>
+		<td>Fk_MentionProfiles</td>
+		<td > ( Profile ) ref <a href='#Profiles'>Profiles</a> (Id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>Fk_MentionProfiles_001</td>
+		<td > ( Mention ) ref <a href='#Mentions'>Mentions</a> (Id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table id='dbs' >
+<thead>
+<tr><th colspan='3'><a name='Mentions'>Mentions</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td><a name='Id'>Id</a></td>
+		<td width='40%'> INTEGER&#040; 2000000000&#044; 10 &#041;   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Value'>Value</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Indexes</b></td></tr>
+	<tr>		<td>pk&#095;Mentions unique</td>
+		<td> ON Id</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table id='dbs' >
+<thead>
+<tr><th colspan='3'><a name='People'>People</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td><a name='Id'>Id</a></td>
+		<td width='40%'> INTEGER&#040; 2000000000&#044; 10 &#041;   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Name'>Name</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Color'>Color</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Mood'>Mood</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Indexes</b></td></tr>
+	<tr>		<td>pk&#095;People unique</td>
+		<td> ON Id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>sqlite&#095;autoindex&#095;People&#095;1 unique</td>
+		<td> ON Name</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table id='dbs' >
+<thead>
+<tr><th colspan='3'><a name='Profiles'>Profiles</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td><a name='Id'>Id</a></td>
+		<td width='40%'> INTEGER&#040; 2000000000&#044; 10 &#041;   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Name'>Name</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Color'>Color</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='LastMood'>LastMood</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='LastUCheck'>LastUCheck</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Theme'>Theme</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Randoms'>Randoms</a></td>
+		<td width='40%'> BOOL   </td>
+		<td width='99%'>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Indexes</b></td></tr>
+	<tr>		<td>pk&#095;Profiles unique</td>
+		<td> ON Id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>sqlite&#095;autoindex&#095;Profiles&#095;1 unique</td>
+		<td> ON Name</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table id='dbs' >
+<thead>
+<tr><th colspan='3'><a name='QuirkProfiles'>QuirkProfiles</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td><a name='Id'>Id</a></td>
+		<td width='40%'> INTEGER&#040; 2000000000&#044; 10 &#041;   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Quirk'>Quirk</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Profile'>Profile</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Ordering'>Ordering</a></td>
+		<td width='40%'> INT   </td>
+		<td width='99%'>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Indexes</b></td></tr>
+	<tr>		<td>pk&#095;QuirkProfiles unique</td>
+		<td> ON Id</td>
+		<td>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Foreign Keys</b></td></tr>
+	<tr>
+		<td>Fk_QuirkProfiles</td>
+		<td > ( Profile ) ref <a href='#Profiles'>Profiles</a> (Id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>Fk_QuirkProfiles_001</td>
+		<td > ( Quirk ) ref <a href='#Quirks'>Quirks</a> (Id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table id='dbs' >
+<thead>
+<tr><th colspan='3'><a name='Quirks'>Quirks</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td><a name='Id'>Id</a></td>
+		<td width='40%'> INTEGER&#040; 2000000000&#044; 10 &#041;   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Group'>Group</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Type'>Type</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='From'>From</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='To'>To</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+	<tr>
+		<td><a name='Value'>Value</a></td>
+		<td width='40%'> TEXT   </td>
+		<td width='99%'>  </td>
+	</tr>
+<tr><td colspan='3' class='subpart'><b>Indexes</b></td></tr>
+	<tr>		<td>pk&#095;Quirks unique</td>
+		<td> ON Id</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+</body></html>
