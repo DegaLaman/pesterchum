@@ -41,7 +41,7 @@ config_columns   = ("Id INTEGER PRIMARY KEY,"
                     "MemoSound BOOL DEFAULT 1,"
                     "PingSound BOOL DEFAULT 1,"
                     "NameSound BOOL DEFAULT 1,"
-                    "Volume INT DEFAULT 100,"
+                    "Volume INT DEFAULT 100 CHECK (Volume >= 0 AND Volume <= 100),"
                     "TrayMsg BOOL DEFAULT 1,"
                     "FOREIGN KEY(DefaultProfile) REFERENCES Profiles(Id)"
                    )
@@ -202,6 +202,36 @@ with lite.connect('test.db') as con:
         create_table(cur, "QuirkProfiles", quirk_profile_columns)
         create_table(cur, "Mentions",   mentions_columns)
         create_table(cur, "MentionProfiles", mention_profile_columns)
+
+        # Time to trigger some shit
+        # Delete a person? Delete references in Chums and Blocked
+        cur.execute("CREATE TRIGGER IF NOT EXISTS delete_person AFTER DELETE ON People\
+                     BEGIN\
+                       DELETE FROM Chums WHERE Person=OLD.Id;\
+                       DELETE FROM Blocked WHERE Person=OLD.Id;\
+                     END;")
+        # Delete a Group? Update any Chums to be in default group
+        cur.execute("CREATE TRIGGER IF NOT EXISTS delete_group AFTER DELETE ON Groups\
+                     BEGIN\
+                       UPDATE Chums SET [Group]=1;\
+                     END;")
+        # Delete a Quirk? Delete references in QuirkProfiles
+        cur.execute("CREATE TRIGGER IF NOT EXISTS delete_quirk AFTER DELETE ON Quirks\
+                     BEGIN\
+                       DELETE FROM QuirkProfiles WHERE Quirk=OLD.Id;\
+                     END;")
+        # Delete a Mention? Delete references in MentionProfiles
+        cur.execute("CREATE TRIGGER IF NOT EXISTS delete_mention AFTER DELETE ON Mentions\
+                     BEGIN\
+                       DELETE FROM MentionProfiles WHERE Mention=OLD.Id;\
+                     END;")
+        # Delete a Profile? Delete references in QuirkProfiles, MentionProfiles and Update references in Config
+        cur.execute("CREATE TRIGGER IF NOT EXISTS delete_profile AFTER DELETE ON Profiles\
+                     BEGIN\
+                       DELETE FROM QuirkProfiles WHERE Profile=OLD.Id;\
+                       DELETE FROM MentionProfiles WHERE Profile=OLD.Id;\
+                       UPDATE Config SET DefaultProfile=NULL WHERE DefaultProfile=OLD.Id;\
+                     END;")
 
         cur.execute("INSERT INTO Groups (Id, Name, Open) VALUES(1, 'Chums', 1)")
 
