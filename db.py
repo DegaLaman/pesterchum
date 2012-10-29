@@ -159,11 +159,14 @@ def get_mentions(cur, handle):
     return [x[0] for x in cur.fetchall()]
 
 class Config(object):
-    def __init__(self, cur):
+    def __init__(self, cur, conn):
         self.cur = cur
+        self.conn = conn
 
-    def __getattr__(self, name):
+    def __getitem__(self, name):
         name = name.lower()
+        if name == 'defaultprofile':
+            return self._defaultprofile()
         try:
             self.cur.execute("SELECT %s FROM Config" % (name))
         except lite.OperationalError:
@@ -177,6 +180,24 @@ class Config(object):
             return bool(value)
         else:
             return value
+
+    def _defaultprofile(self):
+        self.cur.execute("SELECT Name FROM Profiles, Config ON Config.DefaultProfile=Profiles.Id")
+        row = self.cur.fetchone()
+        if row == None:
+            return None
+        return row['name']
+
+    def __setitem__(self, name, value):
+        name = name.lower()
+        if name == 'defaultprofile':
+            self.cur.execute("UPDATE Config SET DefaultProfile=(SELECT Id FROM People WHERE Name=?)", (value,))
+        else:
+            try:
+                self.cur.execute("UPDATE Config SET [%s]=?" % (name), (value,))
+            except lite.OperationalError:
+                raise AttributeError
+        self.conn.commit()
 
 if os.path.exists('test.db'):
     db_exists = True
@@ -360,13 +381,20 @@ with lite.connect('test.db') as con:
         else:
             print "Config converted"
 
-    c = Config(cur)
-    print c.memosound
-    print c.server
-    print c.port
+    c = Config(cur, con)
+    print c['memosound']
+    print c['server']
+    print c['port']
     quirks = get_quirks(cur,'welcomeBack')
     for q in quirks:
         print dict(q)
     print get_mentions(cur,'evacipatedBox')
-    print get_chums(cur, 'evacipatedBox')
+    #print get_chums(cur, 'evacipatedBox')
+    print get_groups(cur)
+    print c['defaultprofile']
+    print c['hideOfflineChums']
+    print c['tabs']
+    print c['time12Format']
+    cur.execute("SELECT * FROM Chums")
+    print type(cur.fetchone())
 
