@@ -248,6 +248,11 @@ with lite.connect('test.db') as con:
             print "No groups to convert"
         else:
             print "Groups converted"
+        cur.execute("SELECT Ordering FROM Groups WHERE Name='Chums'")
+        if cur.fetchone()['ordering'] == None:
+            cur.execute("UPDATE Groups SET Ordering=(SELECT MAX(Ordering)+1 FROM Groups) WHERE Name='Chums'")
+            if cur.execute("SELECT Ordering FROM Groups WHERE Name='Chums'").fetchone()[0] == None:
+                cur.execute("UPDATE Groups SET Ordering=1 WHERE Name='Chums'")
 
         # Convert People
         try:
