@@ -10,6 +10,7 @@ from time import strftime, time
 from PyQt4 import QtGui, QtCore
 
 import ostools
+from generics import CaseInsensitiveDict
 from mood import Mood
 from dataobjs import PesterProfile, pesterQuirk, pesterQuirks
 from parsetools import convertTags, addTimeInitial, themeChecker, ThemeException
@@ -81,6 +82,47 @@ class PesterLog(object):
             for f in self.convos[h].values():
                 f.close()
 
+class SQLConfig(object):
+    def __init__(self, cur, conn):
+        self.cur = cur
+        self.conn = conn
+
+    def __getitem__(self, name):
+        name = name.lower()
+        if name == 'defaultprofile':
+            return self.defaultprofile()
+        try:
+            self.cur.execute("SELECT %s FROM Config" % (name))
+        except lite.OperationalError:
+            raise AttributeError
+        value = self.cur.fetchone()[name]
+        self.cur.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='Config'")
+        row = self.cur.fetchone()
+        sql = row['sql']
+        sql = [x.lower() for x if re.split(' |,', sql)]
+        if sql[sql.index(name)+1] == 'bool':
+            return bool(value)
+        else:
+            return value
+
+    def defaultprofile(self):
+        self.cur.execute("SELECT Name FROM Profiles, Config ON Config.DefaultProfile=Profiles.Id")
+        row = self.cur.fetchone()
+        if row == None:
+            return None
+        return row['name']
+
+    def __setitem__(self, name, value):
+        name = name.lower()
+        if name == 'defaultprofile':
+            self.cur.execute("UPDATE Config SET DefaultProfile=(SELECT Id FROM People WHERE Name=?)", (value,))
+        else:
+            try:
+                self.cur.execute("UPDATE Config SET [%s]=?" % (name), (value,))
+            except lite.OperationalError:
+                raise AttributeError
+        self.conn.commit()
+
 class userConfig(object):
     def __init__(self, parent):
         self.parent = parent
@@ -96,12 +138,13 @@ class userConfig(object):
         self.NEWMSG   = 4
         self.NEWCONVO = 8
         self.INITIALS  = 16
-        self.filename = _datadir+"pesterchum.js"
-        fp = open(self.filename)
-        self.config = json.load(fp)
-        fp.close()
-        if self.config.has_key("defaultprofile"):
-            self.userprofile = userProfile(self.config["defaultprofile"])
+        self.filename = _datadir+"pesterchum.db"
+        self.conn = lite.connect(self.filename)
+        self.conn.row_factory = lite.Row
+        self.cur = self.con.cursor()
+        self.config = SQLConfig(cur, conn)
+        if self.config['defaultprofile']:
+            self.userprofile = userProfile(self.config['defaultprofile'])
         else:
             self.userprofile = None
 
@@ -109,221 +152,151 @@ class userConfig(object):
 
         if not os.path.exists(self.logpath):
             os.makedirs(self.logpath)
-        try:
-            fp = open("%s/groups.js" % (self.logpath), 'r')
-            self.groups = json.load(fp)
-            fp.close()
-        except IOError:
-            self.groups = {}
-            fp = open("%s/groups.js" % (self.logpath), 'w')
-            json.dump(self.groups, fp)
-            fp.close()
-        except ValueError:
-            self.groups = {}
-            fp = open("%s/groups.js" % (self.logpath), 'w')
-            json.dump(self.groups, fp)
-            fp.close()
 
     def chums(self):
-        if not self.config.has_key('chums'):
-            self.set("chums", [])
-        return self.config.get('chums', [])
+        self.cur.execute("SELECT People.Name AS Handle FROM People, Chums ON Chums.Person = People.Id")
+        return [x['handle'] for x in cur.fetchall()]
     def setChums(self, newchums):
-        fp = open(self.filename) # what if we have two clients open??
-        newconfig = json.load(fp)
-        fp.close()
-        oldchums = newconfig['chums']
-        # Time to merge these two! :OOO
-        for c in list(set(oldchums) - set(newchums)):
-            newchums.append(c)
-
-        self.set("chums", newchums)
+        """newchums = list of strings of handles"""
+        """This function serves to completely change the chums
+           Before setting chums IT WILL COMPLETELY DROP ALL CURRENT CHUMS"""
+        self.cur.execute("DELETE FROM Chums")
+        for c in newchums:
+            self.cur.execute("INSERT OR IGNORE INTO People (Name) VALUES(?)", (c,))
+            self.cur.execute("INSERT OR IGNORE INTO Chums (Person) SELECT Id FROM People WHERE Name=?", (c,))
+            self.conn.commit()
     def hideOfflineChums(self):
-        return self.config.get('hideOfflineChums', False)
+        return self.config['hideOfflineChums']
     def defaultprofile(self):
-        try:
-            return self.config['defaultprofile']
-        except KeyError:
-            return None
+        return self.config['defaultprofile']
     def tabs(self):
-        return self.config.get("tabs", True)
+        return self.config['tabs']
     def tabMemos(self):
-        if not self.config.has_key('tabmemos'):
-            self.set("tabmemos", self.tabs())
-        return self.config.get("tabmemos", True)
+        return self.config['tabmemos']
     def showTimeStamps(self):
-        if not self.config.has_key('showTimeStamps'):
-            self.set("showTimeStamps", True)
-        return self.config.get('showTimeStamps', True)
+        return config.showTimeStamps()
     def time12Format(self):
-        if not self.config.has_key('time12Format'):
-            self.set("time12Format", True)
-        return self.config.get('time12Format', True)
+        return self.config['time12Format']
     def showSeconds(self):
-        if not self.config.has_key('showSeconds'):
-            self.set("showSeconds", False)
-        return self.config.get('showSeconds', False)
+        return self.config['showSeconds']
     def sortMethod(self):
-        return self.config.get('sortMethod', 0)
+        return self.config['sortMethod']
     def useGroups(self):
-        return self.config.get('useGroups', False)
+        return self.config['useGroups']
     def openDefaultGroup(self):
-        groups = self.getGroups()
-        for g in groups:
-            if g[0] == "Chums":
-                return g[1]
-        return True
+        self.cur.execute("SELECT (Open) FROM Groups WHERE Name='Chums'")
+        return self.cur.fetchone()['open']
     def showEmptyGroups(self):
-        if not self.config.has_key('emptyGroups'):
-            self.set("emptyGroups", False)
-        return self.config.get('emptyGroups', False)
+        return self.config['emptyGroups']
     def showOnlineNumbers(self):
-        if not self.config.has_key('onlineNumbers'):
-            self.set("onlineNumbers", False)
-        return self.config.get('onlineNumbers', False)
+        return self.config['onlineNumbers']
     def logPesters(self):
-        return self.config.get('logPesters', self.LOG | self.STAMP)
+        return self.config['logPesters']
     def logMemos(self):
-        return self.config.get('logMemos', self.LOG)
+        return self.config['logMemos']
     def disableUserLinks(self):
-        return not self.config.get('userLinks', True)
+        return not self.config['userLinks']
     def idleTime(self):
-        return self.config.get('idleTime', 10)
+        return self.config['idleTime']
     def minimizeAction(self):
-        return self.config.get('miniAction', 0)
+        return self.config['miniAction']
     def closeAction(self):
-        return self.config.get('closeAction', 1)
+        return self.config['closeAction']
     def opvoiceMessages(self):
-        return self.config.get('opvMessages', True)
+        return self.config['opvMessages']
     def animations(self):
-        return self.config.get('animations', True)
+        return self.config['animations']
     def checkForUpdates(self):
+        return self.config['checkUpdates']
+        """depricated so I can remember old bool conversion
         u = self.config.get('checkUpdates', 0)
         if type(u) == type(bool()):
             if u: u = 2
             else: u = 3
-        return u
+        return u"""
         # Once a day
         # Once a week
         # Only on start
         # Never
     def lastUCheck(self):
-        return self.config.get('lastUCheck', 0)
+        return self.config['lastUCheck']
     def checkMSPA(self):
-        return self.config.get('mspa', False)
+        return self.config['mspa']
     def blink(self):
-        return self.config.get('blink', self.PBLINK | self.MBLINK)
+        return self.config['blink']
     def notify(self):
-        return self.config.get('notify', True)
+        return self.config['notify']
     def notifyType(self):
-        return self.config.get('notifyType', "default")
+        return self.config['notifyType']
     def notifyOptions(self):
-        return self.config.get('notifyOptions', self.SIGNIN | self.NEWMSG | self.NEWCONVO | self.INITIALS)
+        return self.config['notifyOptions']
+        #return self.config.get('notifyOptions', self.SIGNIN | self.NEWMSG | self.NEWCONVO | self.INITIALS)
     def lowBandwidth(self):
-        return self.config.get('lowBandwidth', False)
+        return self.config['lowBandwidth']
     def ghostchum(self):
-        return self.config.get('ghostchum', False)
+        return self.config['ghostchum']
     def addChum(self, chum):
-        if chum.handle not in self.chums():
-            fp = open(self.filename) # what if we have two clients open??
-            newconfig = json.load(fp)
-            fp.close()
-            newchums = newconfig['chums'] + [chum.handle]
-            self.set("chums", newchums)
+        if type(chum) is PesterProfile:
+            self.cur.execute("INSERT OR REPLACE INTO People (Name, Color, Mood) VALUES(?,?,?)", (chum.handle, chum.color, chum.mood.value()))
+            self.cur.execute("INSERT OR REPLACE INTO Chums (Person, [Group]) SELECT People.Id, Groups.Id FROM People, Groups WHERE People.Name=? AND Groups.Name=?", (chum.handle, chum.group))
+        elif type(chum) in [str,unicode]:
+            self.cur.execute("INSERT OR IGNORE INTO People (Name) VALUES(?)", (chum,))
+            self.cur.execute("INSERT OR REPLACE INTO Chums (Person) SELECT People.Id FROM People WHERE People.Name=?", (chum,))
+        self.conn.commit()
     def removeChum(self, chum):
         if type(chum) is PesterProfile:
             handle = chum.handle
         else:
             handle = chum
-        newchums = [c for c in self.config['chums'] if c != handle]
-        self.set("chums", newchums)
+        self.cur.execute("DELETE FROM Chums WHERE Person = (SELECT Id FROM People WHERE Name=?)", (handle,))
+        self.conn.commit()
     def getBlocklist(self):
-        if not self.config.has_key('block'):
-            self.set('block', [])
-        return self.config['block']
+        self.cur.execute("SELECT Name FROM Blocked, People ON People.Id=Blocked.Person")
+        return [x[0] for x in self.cur.fetchall()]
     def addBlocklist(self, handle):
-        l = self.getBlocklist()
-        if handle not in l:
-            l.append(handle)
-            self.set('block', l)
+        self.cur.execute("INSERT OR IGNORE INTO Blocked (Person) SELECT People.Id FROM People WHERE People.Name=?", (handle,))
+        self.conn.commit()
     def delBlocklist(self, handle):
-        l = self.getBlocklist()
-        l.pop(l.index(handle))
-        self.set('block', l)
+        self.cur.execute("DELETE FROM Blocked WHERE Person = (SELECT Id FROM People WHERE Name?)", (handle,))
+        self.cur.commit()
     def getGroups(self):
-        if not self.groups.has_key('groups'):
-            self.saveGroups([["Chums", True]])
-        return self.groups.get('groups', [["Chums", True]])
+        self.cur.execute("SELECT Name, Open FROM Groups ORDER BY Ordering ASC")
+        return [[name, bool(b)] for name,b in self.cur.fetchall()]
     def addGroup(self, group, open=True):
-        l = self.getGroups()
-        exists = False
-        for g in l:
-            if g[0] == group:
-                exists = True
-                break
-        if not exists:
-            l.append([group,open])
-            l.sort()
-            self.saveGroups(l)
+        self.cur.execute("INSERT OR REPLACE INTO Groups (Name, Open) VALUES(?,?)", (group, open))
+        self.cur.execute("UPDATE Groups SET Ordering=(SELECT MAX(Ordering)+1 FROM Groups) WHERE Name=?", (group,))
+        self.conn.commit()
     def delGroup(self, group):
-        l = self.getGroups()
-        i = 0
-        for g in l:
-            if g[0] == group: break
-            i = i+1
-        l.pop(i)
-        l.sort()
-        self.saveGroups(l)
+        self.cur.execute("DELETE FROM Groups WHERE Name=?", (group,))
+        self.conn.commit()
     def expandGroup(self, group, open=True):
-        l = self.getGroups()
-        for g in l:
-            if g[0] == group:
-                g[1] = open
-                break
-        self.saveGroups(l)
-    def saveGroups(self, groups):
-        self.groups['groups'] = groups
-        try:
-            jsonoutput = json.dumps(self.groups)
-        except ValueError, e:
-            raise e
-        fp = open("%s/groups.js" % (self.logpath), 'w')
-        fp.write(jsonoutput)
-        fp.close()
+        self.cur.execute("UPDATE Groups SET Open=? WHERE Name=?", (open, group))
+        self.conn.commit()
 
     def server(self):
         if hasattr(self.parent, 'serverOverride'):
             return self.parent.serverOverride
-        return self.config.get('server', 'irc.mindfang.org')
+        return self.config['server']
     def port(self):
         if hasattr(self.parent, 'portOverride'):
             return self.parent.portOverride
-        return self.config.get('port', '6667')
+        return self.config['port']
     def soundOn(self):
-        if not self.config.has_key('soundon'):
-            self.set('soundon', True)
-        return self.config['soundon']
+        return self.config['soundOn']
     def chatSound(self):
-        return self.config.get('chatSound', True)
+        return self.config['chatSound']
     def memoSound(self):
-        return self.config.get('memoSound', True)
+        return self.config['memoSound']
     def memoPing(self):
-        return self.config.get('pingSound', True)
+        return self.config['pingSound']
     def nameSound(self):
-        return self.config.get('nameSound', True)
+        return self.config['nameSound']
     def volume(self):
-        return self.config.get('volume', 100)
+        return self.config['volume']
     def trayMessage(self):
-        return self.config.get('traymsg', True)
+        return self.config['traymsg']
     def set(self, item, setting):
         self.config[item] = setting
-        try:
-            jsonoutput = json.dumps(self.config)
-        except ValueError, e:
-            raise e
-        fp = open(self.filename, 'w')
-        fp.write(jsonoutput)
-        fp.close()
     def availableThemes(self):
         themes = []
         # Load user themes.
@@ -339,15 +312,8 @@ class userConfig(object):
         themes.sort()
         return themes
     def availableProfiles(self):
-        profs = []
-        profileloc = _datadir+'profiles'
-        for dirname, dirnames, filenames in os.walk(profileloc):
-            for filename in filenames:
-                l = len(filename)
-                if filename[l-3:l] == ".js":
-                    profs.append(filename[0:l-3])
-        profs.sort()
-        return [userProfile(p) for p in profs]
+        self.cur.execute("SELECT * FROM Profiles ORDER BY Name")
+        return [userProfile(p) for p in self.cur.fetchall()]
 
 class userProfile(object):
     def __init__(self, user):
