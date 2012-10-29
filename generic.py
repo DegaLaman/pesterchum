@@ -10,6 +10,9 @@ class mysteryTime(timedelta):
         return (type(other) is not mysteryTime)
 
 class CaseInsensitiveDict(dict):
+    def __init__(self, d={}):
+        d = dict((k.lower(), d[k]) for k in d.keys())
+        super(CaseInsensitiveDict, self).__init__(d)
     def __setitem__(self, key, value):
         super(CaseInsensitiveDict, self).__setitem__(key.lower(), value)
     def __getitem__(self, key):
