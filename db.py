@@ -253,6 +253,16 @@ with lite.connect('test.db') as con:
                        DELETE FROM MentionProfiles WHERE Profile=OLD.Id;\
                        UPDATE Config SET DefaultProfile=NULL WHERE DefaultProfile=OLD.Id;\
                      END;")
+        # Add to blocklist? Remove from Chums
+        cur.execute("CREATE TRIGGER IF NOT EXISTS insert_blocklist AFTER INSERT ON Blocked\
+                     BEGIN\
+                       DELETE FROM Chums WHERE Person=NEW.Person;\
+                     END;")
+        # Add to Chums? Remove from Blocklist
+        cur.execute("CREATE TRIGGER IF NOT EXISTS insert_chums AFTER INSERT ON Chums\
+                     BEGIN\
+                       DELETE FROM Blocked WHERE Person=NEW.Person;\
+                     END;")
 
         cur.execute("INSERT INTO Groups (Id, Name, Open) VALUES(1, 'Chums', 1)")
 
