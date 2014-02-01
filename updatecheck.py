@@ -1,22 +1,19 @@
 # Adapted from Eco-Mono's F5Stuck RSS Client
-
+from PyQt5 import QtGui as gui, QtCore as core, QtWidgets as widgets
 from libs import feedparser
 import pickle
-import os
 import threading
 from time import mktime
-from PyQt4 import QtCore, QtGui
 
-class MSPAChecker(QtGui.QWidget):
+class MSPAChecker(widgets.QWidget):
     def __init__(self, parent=None):
-        QtCore.QObject.__init__(self, parent)
+        core.QObject.__init__(self, parent)
         self.mainwindow = parent
-        self.refreshRate = 30 # seconds
+        self.refreshRate = 69 # seconds
         self.status = None
         self.lock = False
-        self.timer = QtCore.QTimer(self)
-        self.connect(self.timer, QtCore.SIGNAL('timeout()'),
-                self, QtCore.SLOT('check_site_wrapper()'))
+        self.timer = core.QTimer(self)
+        self.timer.timeout.connect(self.check_site_wrapper)
         self.timer.start(1000*self.refreshRate)
 
     def save_state(self):
@@ -25,30 +22,30 @@ class MSPAChecker(QtGui.QWidget):
             pickle.dump(self.status, current_status)
             current_status.close()
             try:
-              os.rename("status.pkl","status_old.pkl")
+              ostools.rename("status.pkl","status_old.pkl")
             except:
                 pass
             try:
-                os.rename("status_new.pkl","status.pkl")
+                ostools.rename("status_new.pkl","status.pkl")
             except:
-                if os.path.exists("status_old.pkl"):
-                    os.rename("status_old.pkl","status.pkl")
+                if ostools.exists("status_old.pkl"):
+                    ostools.rename("status_old.pkl","status.pkl")
                 raise
-            if os.path.exists("status_old.pkl"):
-                os.remove("status_old.pkl")
-        except Exception, e:
-            print e
-            msg = QtGui.QMessageBox(self)
+            if ostools.exists("status_old.pkl"):
+                ostools.remove("status_old.pkl")
+        except Exception as e:
+            print(e)
+            msg = gui.QMessageBox(self)
             msg.setText("Problems writing save file.")
             msg.show()
 
-    @QtCore.pyqtSlot()
+    @core.pyqtSlot()
     def check_site_wrapper(self):
         if not self.mainwindow.config.checkMSPA():
             return
         if self.lock:
             return
-        print "Checking MSPA updates..."
+        print("Checking MSPA updates...")
         s = threading.Thread(target=self.check_site)
         s.start()
 
@@ -79,10 +76,8 @@ class MSPAChecker(QtGui.QWidget):
                 self.mspa = None
             if not self.mspa:
                 self.mspa = MSPAUpdateWindow(self.parent())
-                self.connect(self.mspa, QtCore.SIGNAL('accepted()'),
-                             self, QtCore.SLOT('visit_site()'))
-                self.connect(self.mspa, QtCore.SIGNAL('rejected()'),
-                             self, QtCore.SLOT('nothing()'))
+                self.mspa.accepted.connect(self.visit_site)
+                self.mspa.rejected.connect(self.nothing)
                 self.mspa.show()
         else:
             #print "No new updates :("
@@ -90,43 +85,42 @@ class MSPAChecker(QtGui.QWidget):
         if must_save:
             self.save_state()
 
-    @QtCore.pyqtSlot()
+    @core.pyqtSlot()
     def visit_site(self):
-        print self.status['last_visited']['link']
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.status['last_visited']['link'], QtCore.QUrl.TolerantMode))
+        print((self.status['last_visited']['link']))
+        gui.QDesktopServices.openUrl(core.QUrl(self.status['last_visited']['link'], core.QUrl.TolerantMode))
         if self.status['last_seen']['pubdate'] > self.status['last_visited']['pubdate']:
             #Visited for the first time. Untrip the icon and remember that we saw it.
             self.status['last_visited'] = self.status['last_seen']
             self.save_state()
         self.mspa = None
-    @QtCore.pyqtSlot()
+    @core.pyqtSlot()
     def nothing(self):
         self.mspa = None
 
-class MSPAUpdateWindow(QtGui.QDialog):
+class MSPAUpdateWindow(widgets.QDialog):
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        widgets.QDialog.__init__(self, parent)
         self.mainwindow = parent
         self.setStyleSheet(self.mainwindow.theme["main/defaultwindow/style"])
         self.setWindowTitle("MSPA Update!")
         self.setModal(False)
 
-        self.title = QtGui.QLabel("You have an unread MSPA update! :o)")
+        self.title = widgets.QLabel("You have an unread MSPA update! :o)")
 
-        layout_0 = QtGui.QVBoxLayout()
+        layout_0 = widgets.QVBoxLayout()
         layout_0.addWidget(self.title)
 
-        self.ok = QtGui.QPushButton("GO READ NOW!", self)
+        self.ok = widgets.QPushButton("GO READ NOW!", self)
         self.ok.setDefault(True)
-        self.connect(self.ok, QtCore.SIGNAL('clicked()'),
-                     self, QtCore.SLOT('accept()'))
-        self.cancel = QtGui.QPushButton("LATER", self)
-        self.connect(self.cancel, QtCore.SIGNAL('clicked()'),
-                     self, QtCore.SLOT('reject()'))
-        layout_2 = QtGui.QHBoxLayout()
+        self.ok.clicked.connect(self.accept)
+        self.cancel = widgets.QPushButton("LATER", self)
+        self.cancel.clicked.connect(self.reject)
+        layout_2 = widgets.QHBoxLayout()
         layout_2.addWidget(self.cancel)
         layout_2.addWidget(self.ok)
 
         layout_0.addLayout(layout_2)
 
         self.setLayout(layout_0)
+        

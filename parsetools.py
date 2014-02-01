@@ -1,14 +1,14 @@
+from PyQt5 import QtGui as gui
 import re
 import random
 import ostools
 from copy import copy
 from datetime import timedelta
-from PyQt4 import QtGui
 
 from generic import mysteryTime
 from quirks import ScriptQuirks
 from pyquirks import PythonQuirks
-from luaquirks import LuaQuirks
+from luaQuirks import LuaQuirks
 
 _ctag_begin = re.compile(r'(?i)<c=(.*?)>')
 _gtag_begin = re.compile(r'(?i)<g[a-f]>')
@@ -21,15 +21,15 @@ _handlere = re.compile(r"(\s|^)(@[A-Za-z0-9_]+)")
 _imgre = re.compile(r"""(?i)<img src=['"](\S+)['"]\s*/>""")
 _mecmdre = re.compile(r"^(/me|PESTERCHUM:ME)(\S*)")
 oocre = re.compile(r"[\[(][\[(].*[\])][\])]")
-_format_begin = re.compile(r'(?i)<([ibu])>')
-_format_end = re.compile(r'(?i)</([ibu])>')
+_format__begin = re.compile(r'(?i)<([ibu])>')
+_format__end = re.compile(r'(?i)</([ibu])>')
 _honk = re.compile(r"(?i)\bhonk\b")
 
 quirkloader = ScriptQuirks()
 quirkloader.add(PythonQuirks())
 quirkloader.add(LuaQuirks())
 quirkloader.loadAll()
-print quirkloader.funcre()
+print(quirkloader.funcre())
 _functionre = re.compile(r"%s" % quirkloader.funcre())
 _groupre = re.compile(r"\\([0-9]+)")
 
@@ -43,15 +43,15 @@ def lexer(string, objlist):
     stringlist = [string]
     for (oType, regexp) in objlist:
         newstringlist = []
-        for (stri, s) in enumerate(stringlist):
-            if type(s) not in [str, unicode]:
+        for s in stringlist:
+            if type(s) != str:
                 newstringlist.append(s)
                 continue
             lasti = 0
             for m in regexp.finditer(s):
                 start = m.start()
                 end = m.end()
-                tag = oType(m.group(0), *m.groups())
+                tag = oType(*m.groups())
                 if lasti != start:
                     newstringlist.append(s[lasti:start])
                 newstringlist.append(tag)
@@ -62,90 +62,88 @@ def lexer(string, objlist):
     return stringlist
 
 class colorBegin(object):
-    def __init__(self, string, color):
-        self.string = string
+    def __init__(self, color, *args):
         self.color = color
-    def convert(self, format):
+    def convert(self, format_):
         color = self.color
-        if format == "text":
+        if format_ == "text":
             return ""
         if _ctag_rgb.match(color) is not None:
-            if format=='ctag':
+            if format_=='ctag':
                 return "<c=%s>" % (color)
             try:
-                qc = QtGui.QColor(*[int(c) for c in color.split(",")])
+                qc = gui.QColor(*[int(c) for c in color.split(",")])
             except ValueError:
-                qc = QtGui.QColor("black")
+                qc = gui.QColor("black")
         else:
-            qc = QtGui.QColor(color)
+            qc = gui.QColor(color)
         if not qc.isValid():
-            qc = QtGui.QColor("black")
-        if format == "html":
+            qc = gui.QColor("black")
+        if format_ == "html":
             return '<span style="color:%s">' % (qc.name())
-        elif format == "bbcode":
+        elif format_ == "bbcode":
             return '[color=%s]' % (qc.name())
-        elif format == "ctag":
+        elif format_ == "ctag":
             (r,g,b,a) = qc.getRgb()
             return '<c=%s,%s,%s>' % (r,g,b)
 class colorEnd(object):
-    def __init__(self, string):
-        self.string = string
-    def convert(self, format):
-        if format == "html":
+    def __init__(self, *args): pass
+    def convert(self, format__):
+        if format__ == "html":
             return "</span>"
-        elif format == "bbcode":
+        elif format__ == "bbcode":
             return "[/color]"
-        elif format == "text":
+        elif format__ == "text":
             return ""
         else:
             return self.string
-class formatBegin(object):
-    def __init__(self, string, ftype):
+class format_Begin(object):
+    def __init__(self, string, ftype, *args):
         self.string = string
         self.ftype = ftype
-    def convert(self, format):
-        if format == "html":
+    def convert(self, format__):
+        if format__ == "html":
             return "<%s>" % (self.ftype)
-        elif format == "bbcode":
+        elif format__ == "bbcode":
             return "[%s]" % (self.ftype)
-        elif format == "text":
+        elif format__ == "text":
             return ""
         else:
             return self.string
-class formatEnd(object):
-    def __init__(self, string, ftype):
+class format_End(object):
+    def __init__(self, string, ftype, *args):
         self.string = string
         self.ftype = ftype
-    def convert(self, format):
-        if format == "html":
+    def convert(self, format__):
+        if format__ == "html":
             return "</%s>" % (self.ftype)
-        elif format == "bbcode":
+        elif format__ == "bbcode":
             return "[/%s]" % (self.ftype)
-        elif format == "text":
+        elif format__ == "text":
             return ""
         else:
             return self.string
 class hyperlink(object):
-    def __init__(self, string):
+    def __init__(self, string, *args):
         self.string = string
-    def convert(self, format):
-        if format == "html":
+    def convert(self, format__):
+        if format__ == "html":
             return "<a href='%s'>%s</a>" % (self.string, self.string)
-        elif format == "bbcode":
+        elif format__ == "bbcode":
             return "[url]%s[/url]" % (self.string)
         else:
             return self.string
 class hyperlink_lazy(hyperlink):
-    def __init__(self, string):
+    def __init__(self, string, *args):
         self.string = "http://" + string
 class imagelink(object):
-    def __init__(self, string, img):
+    def __init__(self, string, img, *args):
         self.string = string
         self.img = img
-    def convert(self, format):
-        if format == "html":
+    def convert(self, format__):
+        if format__ == "html":
             return self.string
-        elif format == "bbcode":
+        elif format__ == "bbcode":
             if self.img[0:7] == "http://":
                 return "[img]%s[/img]" % (self.img)
             else:
@@ -153,53 +151,53 @@ class imagelink(object):
         else:
             return ""
 class memolex(object):
-    def __init__(self, string, space, channel):
+    def __init__(self, string, space, channel, *args):
         self.string = string
         self.space = space
         self.channel = channel
-    def convert(self, format):
-        if format == "html":
+    def convert(self, format__):
+        if format__ == "html":
             return "%s<a href='%s'>%s</a>" % (self.space, self.channel, self.channel)
         else:
             return self.string
 class chumhandlelex(object):
-    def __init__(self, string, space, handle):
+    def __init__(self, string, space, handle, *args):
         self.string = string
         self.space = space
         self.handle = handle
-    def convert(self, format):
-        if format == "html":
+    def convert(self, format_):
+        if format_ == "html":
             return "%s<a href='%s'>%s</a>" % (self.space, self.handle, self.handle)
         else:
             return self.string
 class smiley(object):
-    def __init__(self, string):
+    def __init__(self, string, *args):
         self.string = string
-    def convert(self, format):
-        if format == "html":
+    def convert(self, format_):
+        if format_ == "html":
             return "<img src='smilies/%s' alt='%s' title='%s' />" % (smiledict[self.string], self.string, self.string)
         else:
             return self.string
 class honker(object):
-    def __init__(self, string):
+    def __init__(self, string, *args):
         self.string = string
-    def convert(self, format):
-        if format == "html":
+    def convert(self, format_):
+        if format_ == "html":
             return "<img src='smilies/honk.png' alt'honk' title='honk' />"
         else:
             return self.string
 class mecmd(object):
-    def __init__(self, string, mecmd, suffix):
+    def __init__(self, string, mecmd, suffix, *args):
         self.string = string
         self.suffix = suffix
-    def convert(self, format):
+    def convert(self, format_):
         return self.string
 
 def lexMessage(string):
     lexlist = [(mecmd, _mecmdre),
                (colorBegin, _ctag_begin), (colorBegin, _gtag_begin),
                (colorEnd, _ctag_end),
-               (formatBegin, _format_begin), (formatEnd, _format_end),
+               (format_Begin, _format__begin), (format_End, _format__end),
                (imagelink, _imgre),
                (hyperlink, _urlre), (hyperlink_lazy, _url2re),
                (memolex, _memore),
@@ -207,9 +205,9 @@ def lexMessage(string):
                (smiley, _smilere),
                (honker, _honk)]
 
-    string = unicode(string)
+    string = str(string)
     string = string.replace("\n", " ").replace("\r", " ")
-    lexed = lexer(unicode(string), lexlist)
+    lexed = lexer(str(string), lexlist)
 
     balanced = []
     beginc = 0
@@ -231,35 +229,35 @@ def lexMessage(string):
             balanced.append(colorEnd("</c>"))
     if len(balanced) == 0:
         balanced.append("")
-    if type(balanced[len(balanced)-1]) not in [str, unicode]:
+    if not isinstance(balanced[len(balanced)-1],str):
         balanced.append("")
     return balanced
 
-def convertTags(lexed, format="html"):
-    if format not in ["html", "bbcode", "ctag", "text"]:
-        raise ValueError("Color format not recognized")
+def convertTags(lexed, format_="html"):
+    if format_ not in ["html", "bbcode", "ctag", "text"]:
+        raise ValueError("Color format_ not recognized")
 
-    if type(lexed) in [str, unicode]:
+    if type(lexed) in [str, str]:
         lexed = lexMessage(lexed)
     escaped = ""
     firststr = True
     for (i, o) in enumerate(lexed):
-        if type(o) in [str, unicode]:
-            if format == "html":
+        if type(o) in [str, str]:
+            if format_ == "html":
                 escaped += o.replace("&", "&amp;").replace(">", "&gt;").replace("<","&lt;")
             else:
                 escaped += o
         else:
-            escaped += o.convert(format)
+            escaped += o.convert(format_)
 
     return escaped
 
-def splitMessage(msg, format="ctag"):
+def splitMessage(msg, format_="ctag"):
     """Splits message if it is too long."""
     # split long text lines
     buf = []
     for o in msg:
-        if type(o) in [str, unicode] and len(o) > 200:
+        if type(o) in [str, str] and len(o) > 200:
             for i in range(0, len(o), 200):
                 buf.append(o[i:i+200])
         else:
@@ -279,7 +277,7 @@ def splitMessage(msg, format="ctag"):
             except IndexError:
                 pass
         # yeah normally i'd do binary search but im lazy
-        msglen = len(convertTags(okmsg, format)) + 4*(len(cbegintags))
+        msglen = len(convertTags(okmsg, format_)) + 4*(len(cbegintags))
         if msglen > 400:
             okmsg.pop()
             if type(o) is colorBegin:
@@ -401,7 +399,7 @@ def parseRegexpFunctions(to):
             backr = _groupre.search(mo.group())
             if backr is not None:
                 current.append(backreference(backr.group(1)))
-            elif mo.group()[:-1] in functiondict.keys():
+            elif mo.group()[:-1] in list(functiondict.keys()):
                 p = parseLeaf(functiondict[mo.group()[:-1]], current)
                 current.append(p)
                 current = p
@@ -418,7 +416,7 @@ def parseRegexpFunctions(to):
 
 
 def img2smiley(string):
-    string = unicode(string)
+    string = str(string)
     def imagerep(mo):
         return reverse_smiley[mo.group(1)]
     string = re.sub(r'<img src="smilies/(\S+)" />', imagerep, string)
@@ -499,8 +497,8 @@ if ostools.isOSXBundle():
 
 
 
-reverse_smiley = dict((v,k) for k, v in smiledict.iteritems())
-_smilere = re.compile("|".join(smiledict.keys()))
+reverse_smiley = dict((v,k) for k, v in iter(list(smiledict.items())))
+_smilere = re.compile("|".join(list(smiledict.keys())))
 
 class ThemeException(Exception):
     def __init__(self, value):
@@ -516,7 +514,6 @@ def themeChecker(theme):
     "main/menu/loc", "main/menus/client/logviewer", \
     "main/menus/client/addgroup", "main/menus/client/options", \
     "main/menus/client/exit", "main/menus/client/userlist", \
-    "main/menus/client/memos", "main/menus/client/import", \
     "main/menus/client/idle", "main/menus/client/reconnect", \
     "main/menus/client/_name", "main/menus/profile/quirks", \
     "main/menus/profile/block", "main/menus/profile/color", \

@@ -28,6 +28,7 @@ Features
 
 Bugs
 ----
+* No sound (No pygame)
 * weird memo time bug
 * Windows doesn't show style sheet sometimes?? Maybe related to themes.
 * Issues with connecting? Client not closing connection right? People keep getting "nick taken" messages

@@ -43,3 +43,4 @@ os.mkdir("build/pesterchum/logs")
 shutil.copy("logs/chums.js", "build/pesterchum/logs")
 shutil.copy("readme.txt", "build/pesterchum/")
 shutil.copy("themes.txt", "build/pesterchum/")
+  

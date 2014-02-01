@@ -1,0 +1,89 @@
+Traceback (most recent call last):
+  File "C:\Users\DegaLaman\Desktop\pesterchum-master\logviewer.py", line 108, in viewActivatedLog
+    self.pesterlogviewer = PesterLogViewer(selectedchum, self.config, self.theme, self.parent)
+  File "C:\Users\DegaLaman\Desktop\pesterchum-master\logviewer.py", line 189, in __init__
+    my = self.fileToMonthYear(l)
+  File "C:\Users\DegaLaman\Desktop\pesterchum-master\logviewer.py", line 265, in fileToMonthYear
+    time = strptime(fname[(fname.index(".")+1):fname.index(".txt")], "%Y-%m-%d.%H.%M")
+  File "C:\Python33\lib\_strptime.py", line 494, in _strptime_time
+    tt = _strptime(data_string, format)[0]
+  File "C:\Python33\lib\_strptime.py", line 337, in _strptime
+    (data_string, format))
+ValueError: time data '00.33' does not match format '%Y-%m-%d.%H.%M'
+	# Some Logs Give This Error
+
+Traceback (most recent call last):
+  File "C:\Users\DegaLaman\Desktop\pesterchum-master\logviewer.py", line 242, in loadSelectedLog
+    self.loadLog(self.timeToFile(self.tree.currentItem().text(0)))
+  File "C:\Users\DegaLaman\Desktop\pesterchum-master\logviewer.py", line 254, in loadLog
+    self.textArea.append(convertTags(cline))
+  File "C:\Users\DegaLaman\Desktop\pesterchum-master\parsetools.py", line 241, in convertTags
+    lexed = lexMessage(lexed)
+  File "C:\Users\DegaLaman\Desktop\pesterchum-master\parsetools.py", line 210, in lexMessage
+    lexed = lexer(str(string), lexlist)
+  File "C:\Users\DegaLaman\Desktop\pesterchum-master\parsetools.py", line 54, in lexer
+    tag = oType(*m.groups())
+TypeError: __init__() missing 1 required positional argument: 'string'
+	# I forgot how I got this one
+
+Bugs
+----
+* No Sound #Due to removing pygame
+* weird memo time bug
+
+* Windows doesn't show style sheet sometimes?? Maybe related to themes.
+
+* Issues with connecting? Client not closing connection right? People keep getting "nick taken" messages
+
+* When using mood sort, scroll position jumps to last selected chum
+
+* Closing a timeclone doesn't actually cease for everyone else
+
+* Kill Zalgo
+
+* Random invisible, tiny links to last link at end of every message
+
+* Clicking link to invite-only memo crashes
+
+* Close when banned from memo when main PC window minimized
+
+* Chums not appearing on chumroll when initals are the same? (bS)
+
+* Recognize IRC 471, 473, 474 and 475
+
+* memo links aren't case sensitive
+
+* Pesterdunk Ghostchum gives 'ERROR: boolean not subscriptable'
+
+
+Windows Bugs
+------------
+
+* XP SP2: sometimes mouse clicks dont register? must be some kinda crash
+
+* On reconnect and nick change, momentary theme change causes menu items to stop working
+
+* Random chums won't show up on chumroll
+
+* Popup toast notifications cause main window to raise
+
+
+Mac Bugs
+
+--------
+
+* Mac doesn't show tabs right, display gifs, highlighting thing?
+
+* SS: also the background image is broken
+* SS: in the one-on-one pester it resizes with the window
+
+* SS: but the memo one doesn't resize
+
+* SS: and the arrows next to the time thing overlap the CLOSE button
+
+* Lex: There seems to be a faint outline around most non-square themes.
+
+
+
+
+

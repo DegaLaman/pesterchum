@@ -6,28 +6,26 @@ try:
 except:
     tarfile = None
 import zipfile
-import os, sys, shutil
+import ostools
 
-USER_TYPE = "user"
+USER_TYPE = "edge"
                   # user - for normal people
                   # beta - for the original beta testers
                   # dev  - used to be for git users, now it's anyone with the 3.41 beta
                   # edge - new git stuff. bleeding edge, do not try at home (kiooeht version)
 
-INSTALL_TYPE = "installer"
+INSTALL_TYPE = "source"
                   # installer - Windows/Mac installer     (exe/dmg)
                   # zip       - Windows zip               (zip)
                   # source    - Win/Linux/Mac source code (zip/tar)
 
-OS_TYPE = sys.platform # win32, linux, darwin
-if OS_TYPE.startswith("linux"):
-    OS_TYPE = "linux"
-elif OS_TYPE == "darwin":
-    OS_TYPE = "mac"
+OS_TYPE =  ostools.shortPlatform()# win32, linux, darwin
 
 _pcMajor = "3.41"
-_pcMinor = "3"
-_pcStatus = "" # A  = alpha
+_pcMinor = "5"
+_pcStatus = "dev"
+                # dev = Still in development
+                # A  = alpha
                 # B  = beta
                 # RC = release candidate
                 # None = public release
@@ -67,31 +65,31 @@ def lexVersion(short=False):
 
 # Naughty I know, but it lets me grab it from the bash script.
 if __name__ == "__main__":
-    print lexVersion()
+    print((lexVersion()))
 
 def verStrToNum(ver):
     w = re.match("(\d+\.?\d+)\.(\d+)-?([A-Za-z]{0,2})\.?(\d*):(\S+)", ver)
     if not w:
-        print "Update check Failure: 3"; return
+        print("Update check Failure: 3"); return
     full = ver[:ver.find(":")]
     return full,w.group(1),w.group(2),w.group(3),w.group(4),w.group(5)
 
 def updateCheck(q):
     time.sleep(3)
-    data = urllib.urlencode({"type" : USER_TYPE, "os" : OS_TYPE, "install" : INSTALL_TYPE})
+    data = urllib.parse.urlencode({"type" : USER_TYPE, "os" : OS_TYPE, "install" : INSTALL_TYPE})
     try:
-        f = urllib.urlopen("http://distantsphere.com/pesterchum.php?" + data)
+        f = urllib.request.urlopen("http://distantsphere.com/pesterchum.php?" + data)
     except:
-        print "Update check Failure: 1"; return q.put((False,1))
+        print("Update check Failure: 1"); return q.put((False,1))
     newest = f.read()
     f.close()
     if not newest or newest[0] == "<":
-        print "Update check Failure: 2"; return q.put((False,2))
+        print("Update check Failure: 2"); return q.put((False,2))
     try:
         (full, major, minor, status, revision, url) = verStrToNum(newest)
     except TypeError:
         return q.put((False,3))
-    print full
+    print(full)
     if major <= _pcMajor:
         if minor <= _pcMinor:
             if status:
@@ -102,81 +100,78 @@ def updateCheck(q):
                 if not _pcStatus:
                     if revision <= _pcRevision:
                         return q.put((False,0))
-    print "A new version of Pesterchum is avaliable!"
+    print("A new version of Pesterchum is avaliable!")
     q.put((full,url))
 
 
 def removeCopies(path):
-    for f in os.listdir(path):
-        filePath = os.path.join(path, f)
-        if not os.path.isdir(filePath):
-            if os.path.exists(filePath[7:]):
-                os.remove(filePath[7:])
+    for f in ostools.listdir(path):
+        filePath = ostools.join(path, f)
+        if not ostools.isdir(filePath):
+            if ostools.exists(filePath[7:]):
+                ostools.remove(filePath[7:])
         else:
             removeCopies(filePath)
 
 def copyUpdate(path):
-    for f in os.listdir(path):
-        filePath = os.path.join(path, f)
-        if not os.path.isdir(filePath):
-            shutil.copy2(filePath, filePath[7:])
+    for f in ostools.listdir(path):
+        filePath = ostools.join(path, f)
+        if not ostools.isdir(filePath):
+            ostools.copy2(filePath, filePath[7:])
         else:
-            if not os.path.exists(filePath[7:]):
-                os.mkdir(filePath[7:])
+            if not ostools.exists(filePath[7:]):
+                ostools.mkdir(filePath[7:])
             copyUpdate(filePath)
 
 def updateExtract(url, extension):
     if extension:
         fn = "update" + extension
-        urllib.urlretrieve(url, fn)
+        urllib.request.urlretrieve(url, fn)
     else:
-        fn = urllib.urlretrieve(url)[0]
+        fn = urllib.request.urlretrieve(url)[0]
         if tarfile and tarfile.is_tarfile(fn):
             extension = ".tar.gz"
         elif zipfile.is_zipfile(fn):
             extension = ".zip"
         else:
             try:
-                from libs import magic # :O I'M IMPORTING /MAGIC/!! HOLY SHIT!
                 mime = magic.from_file(fn, mime=True)
                 if mime == 'application/octet-stream':
                     extension = ".exe"
             except:
                 pass
 
-    print url, fn, extension
+    print((url, fn, extension))
 
     if extension == ".exe":
         pass
     elif extension == ".zip" or extension.startswith(".tar"):
         if extension == ".zip":
-            from zipfile import is_zipfile as is_updatefile, ZipFile as openupdate
-            print "Opening .zip"
+            print("Opening .zip")
         elif tarfile and extension.startswith(".tar"):
-            from tarfile import is_tarfile as is_updatefile, open as openupdate
-            print "Opening .tar"
+            print("Opening .tar")
         else:
             return
 
         if is_updatefile(fn):
             update = openupdate(fn, 'r')
-            if os.path.exists("tmp"):
-                shutil.rmtree("tmp")
-            os.mkdir("tmp")
+            if ostools.exists("tmp"):
+                ostools.rmtree("tmp")
+            ostools.mkdir("tmp")
             update.extractall("tmp")
-            tmp = os.listdir("tmp")
-            if os.path.exists("update"):
-                shutil.rmtree("update")
+            tmp = ostools.listdir("tmp")
+            if ostools.exists("update"):
+                ostools.rmtree("update")
             if len(tmp) == 1 and \
-               os.path.isdir("tmp/"+tmp[0]):
-                shutil.move("tmp/"+tmp[0], "update")
+               ostools.isdir("tmp/"+tmp[0]):
+                ostools.move("tmp/"+tmp[0], "update")
             else:
-                shutil.move("tmp", "update")
-            os.rmdir("tmp")
-            os.remove(fn)
+                ostools.move("tmp", "update")
+            ostools.rmdir("tmp")
+            ostools.remove(fn)
             removeCopies("update")
             copyUpdate("update")
-            shutil.rmtree("update")
+            ostools.rmtree("update")
 
 def updateDownload(url):
     extensions = [".exe", ".zip", ".tar.gz", ".tar.bz2"]

@@ -11,6 +11,7 @@ pesterchum.js
 quirks/*
 !quirks/defaults.py
 *.pkl
+pesterbat.bat
 
 Pesterchum.dmg
 

@@ -23,13 +23,6 @@ import traceback
 from oyoyo import helpers
 from oyoyo.parse import parse_nick
 
-# Python < 3 compatibility
-if sys.version_info < (3,):
-    class bytes(object):
-        def __new__(self, b='', encoding='utf8'):
-            return str(b)
-
-
 def protected(func):
     """ decorator to protect functions from being called """
     func.protected = True
@@ -65,7 +58,9 @@ class CommandHandler(object):
         its possible to pass both "command.sub.func" and 
         ["command", "sub", "func"].
         """
-        if isinstance(in_command_parts, (str, bytes)):
+        if isinstance(in_command_parts, str):
+            in_command_parts = bytes(in_command_parts,'ascii')
+        if isinstance(in_command_parts, bytes):
             in_command_parts = in_command_parts.split(bytes('.', 'ascii'))
         command_parts = in_command_parts[:]
 
@@ -104,7 +99,7 @@ class CommandHandler(object):
 
         try:
             f(*args)
-        except Exception, e:
+        except Exception as e:
             logging.error('command raised %s' % e)
             logging.error(traceback.format_exc())
             raise CommandError(command)
@@ -150,7 +145,7 @@ class DefaultBotCommandHandler(CommandHandler):
         else:
             try:
                 f = self.get(arg)
-            except CommandError, e:
+            except CommandError as e:
                 helpers.msg(self.client, dest, str(e))
                 return
                 
@@ -197,7 +192,7 @@ class BotCommandHandler(DefaultCommandHandler):
 
         try:
             self.command_handler.run(command, prefix, dest, *arg)
-        except CommandError, e:
+        except CommandError as e:
             helpers.msg(self.client, dest, str(e))
         return True
  

@@ -13,6 +13,16 @@ Visit http://nova.xzibition.com/~illuminatedwax/help.html for tutorial.
 
 CHANGELOG
 ---------
+## 3.41.5
+* Running on Python 3.3
+* Running on PyQt 5
+* Broke everything
+	* No sound
+	* Keep finding PyQt 4 syntax that hasn't been changed
+	* Auto-Identify isn't working
+	* Some logs don't open
+- Removed pygame
+
 ## 3.41.4
 * Makefile for Linux installing - Kiooeht [evacipatedBox]
 * Recognize www. as link - Kiooeht [evacipatedBox]

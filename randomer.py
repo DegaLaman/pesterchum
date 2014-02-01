@@ -1,10 +1,10 @@
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui as gui, QtCore as core, QtWidgets as widgets
 
 RANDNICK = "randomEncounter"
 
-class RandomHandler(QtCore.QObject):
+class RandomHandler(core.QObject):
     def __init__(self, parent):
-        QtCore.QObject.__init__(self, parent)
+        core.QObject.__init__(self, parent)
         self.randNick = RANDNICK
         self.mainwindow = parent
         self.queue = []
@@ -31,7 +31,7 @@ class RandomHandler(QtCore.QObject):
         self.queue.append(code)
         self.mainwindow.sendNotice.emit(code, self.randNick)
 
-    @QtCore.pyqtSlot()
+    @core.pyqtSlot()
     def getEncounter(self):
         self.queue.append("!")
         self.mainwindow.sendNotice.emit("!", self.randNick)
@@ -58,12 +58,12 @@ class RandomHandler(QtCore.QObject):
                 pass
         elif code == "!":
             if l[1] == "x":
-                from PyQt4 import QtGui
-                msgbox = QtGui.QMessageBox()
+                msgbox = gui.QMessageBox()
                 msgbox.setText("Unable to fetch you a random encounter!")
                 msgbox.setInformativeText("Try again later :(")
                 msgbox.exec_()
                 return
-            name = unicode(l[1])
-            print name
+            name = str(l[1])
+            print(name)
             self.mainwindow.newConversation(name)
+        

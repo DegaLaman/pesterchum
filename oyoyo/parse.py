@@ -48,7 +48,7 @@ def parse_raw_irc_command(element):
     """
     parts = element.strip().split(bytes(" ", "ascii"))
     if parts[0].startswith(bytes(':', 'ascii')):
-        prefix = parts[0][1:]
+        prefix = parts[0][1:].decode('ascii')
         command = parts[1]
         args = parts[2:]
     else:
@@ -58,9 +58,11 @@ def parse_raw_irc_command(element):
 
     if command.isdigit():
         try:
-            command = numeric_events[command]
+            command = numeric_events[command.decode('ascii')]
         except KeyError:
             logging.warn('unknown numeric event %s' % command)
+    else:
+        command = command.decode('ascii')
     command = command.lower()
 
     if args[0].startswith(bytes(':', 'ascii')):
@@ -70,9 +72,14 @@ def parse_raw_irc_command(element):
             if arg.startswith(bytes(':', 'ascii')):
                 args = args[:idx] + [bytes(" ", 'ascii').join(args[idx:])[1:]]
                 break
-
+    bargs = args
+    args = []
+    for each in bargs:
+        try:
+            args.append(each.decode('utf-8'))
+        except UnicodeDecodeError:
+            args.append(each.decode('iso-8859-1','ignore'))
     return (prefix, command, args)
-
 
 def parse_nick(name):
     """ parse a nickname and return a tuple of (nick, mode, user, host)
